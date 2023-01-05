@@ -20,7 +20,7 @@ jobs:
           echo "ref_name=${{ github.ref_name }}" >> $GITHUB_OUTPUT
       - name: Build images
         env:
-          VERSION: ${{ steps.tag_vars.outputs.ref_name }}
+          VERSION: latest
         working-directory: ./custom-builds/Single-Docker-File/
         run: |
           docker build -f Dockerfile --build-arg BASE_IMAGE=${{ github.actor }}/compreface-core:${VERSION}                  --build-arg VERSION=${VERSION} -t ${{ github.actor }}/compreface:latest ./../..
