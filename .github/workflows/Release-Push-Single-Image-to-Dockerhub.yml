@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [arcface-r100-gpu, mobilenet-gpu]
+        model: [arcface-r100-gpu, mobilenet-gpu]
     steps:
       - name: Check Out Repo 
         uses: actions/checkout@v2
