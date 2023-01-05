@@ -37,7 +37,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v3
         with:
-          context: ./custom-builds/Single-Docker-File/
+          context: .
+          file: ./custom-builds/Single-Docker-File/Dockerfile
           push: true
           platforms: linux/amd64
           build-args: |
