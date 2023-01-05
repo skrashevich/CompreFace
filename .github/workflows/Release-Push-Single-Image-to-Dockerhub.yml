@@ -7,7 +7,7 @@ on:
       - svk
 
 env:
-  VERSION: latest
+  VERSION: svk
 
 jobs:
   build:
@@ -41,9 +41,8 @@ jobs:
           push: true
           platforms: linux/amd64
           build-args: |
-            BASE_IMAGE=ghcr.io/${{ github.actor }}/compreface-core:${VERSION}-${{ matrix.model }}
-            VERSION=${VERSION}
+            BASE_IMAGE=ghcr.io/${{ github.actor }}/compreface-core:${{ env.VERSION }}-${{ matrix.model }}
           tags: |
-            ghcr.io/${{ github.actor }}/compreface:${VERSION}-${{ matrix.model }}
+            ghcr.io/${{ github.actor }}/compreface:${{ env.VERSION }}-${{ matrix.model }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
