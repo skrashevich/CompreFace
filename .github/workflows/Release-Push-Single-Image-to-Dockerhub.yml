@@ -6,9 +6,16 @@ on:
     branches:
       - svk
 
+env:
+  VERSION: latest
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [arcface-r100-gpu, mobilenet-gpu]
     steps:
       - name: Check Out Repo 
         uses: actions/checkout@v2
@@ -18,7 +25,7 @@ jobs:
           echo "tag=${{ github.ref_name }}-$(git rev-parse HEAD | cut -c 1-7 | tr -d '\n')" >> $GITHUB_OUTPUT
           echo "tag_latest=${{ github.ref_name }}-latest" >> $GITHUB_OUTPUT
           echo "ref_name=${{ github.ref_name }}" >> $GITHUB_OUTPUT
-      - name: Login to Docker Hub
+      - name: Login to Docker
         uses: docker/login-action@v2
         with:
             username: ${{ github.actor }}
@@ -27,16 +34,16 @@ jobs:
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v1
-      - name: Build images
-        env:
-          VERSION: latest
-        working-directory: ./custom-builds/Single-Docker-File/
-        run: |
-          docker buildx build --push -f Dockerfile --build-arg BASE_IMAGE=ghcr.io/${{ github.actor }}/compreface-core:${VERSION}                  --build-arg VERSION=${VERSION} -t ${{ github.actor }}/compreface:latest ./../..
-          docker buildx build --push -f Dockerfile --build-arg BASE_IMAGE=ghcr.io/${{ github.actor }}/compreface-core:${VERSION}                  --build-arg VERSION=${VERSION} -t ${{ github.actor }}/compreface:${VERSION} ./../..
-          docker buildx build --push -f Dockerfile --build-arg BASE_IMAGE=ghcr.io/${{ github.actor }}/compreface-core:${VERSION}-facenet          --build-arg VERSION=${VERSION} -t ${{ github.actor }}/compreface:${VERSION}-facenet ./../..
-          docker buildx build --push -f Dockerfile --build-arg BASE_IMAGE=ghcr.io/${{ github.actor }}/compreface-core:${VERSION}-arcface-r100     --build-arg VERSION=${VERSION} -t ${{ github.actor }}/compreface:${VERSION}-arcface-r100 ./../..
-          docker buildx build --push -f Dockerfile --build-arg BASE_IMAGE=ghcr.io/${{ github.actor }}/compreface-core:${VERSION}-arcface-r100-gpu --build-arg VERSION=${VERSION} -t ${{ github.actor }}/compreface:${VERSION}-arcface-r100-gpu ./../..
-          docker buildx build --push -f Dockerfile --build-arg BASE_IMAGE=ghcr.io/${{ github.actor }}/compreface-core:${VERSION}-mobilenet        --build-arg VERSION=${VERSION} -t ${{ github.actor }}/compreface:${VERSION}-mobilenet ./../..
-          docker buildx build --push -f Dockerfile --build-arg BASE_IMAGE=ghcr.io/${{ github.actor }}/compreface-core:${VERSION}-mobilenet-gpu    --build-arg VERSION=${VERSION} -t ${{ github.actor }}/compreface:${VERSION}-mobilenet-gpu ./../..
-          docker images 
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          context: ./custom-builds/Single-Docker-File/
+          push: true
+          platforms: linux/amd64
+          build-args: |
+            BASE_IMAGE=ghcr.io/${{ github.actor }}/compreface-core:${VERSION}-${{ matrix.model }}
+            VERSION=${VERSION}
+          tags: |
+            ghcr.io/${{ github.actor }}/compreface:${VERSION}-${{ matrix.model }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache,mode=max

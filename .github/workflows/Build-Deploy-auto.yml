@@ -1,9 +1,11 @@
 name: Build and Deploy CompreFace on push
 
-on: 
-  push:
-    branches:
-      - svk
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version (e.g., 1.0.0)
+        required: true
 
 env:
   REGISTRY: ghcr.io
