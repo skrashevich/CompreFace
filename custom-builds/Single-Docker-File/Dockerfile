@@ -11,11 +11,11 @@ FROM exadel/compreface-fe:${VERSION} as fe
 ################# compreface-core start ####################
 FROM ${BASE_IMAGE}
 
-ENV UWSGI_PROCESSES=2
+ENV UWSGI_PROCESSES=1
 ENV UWSGI_THREADS=1
 ################# compreface-core end ####################
 
-ENV TZ=America/Los_Angeles
+ENV TZ=Europe/Moscow
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 ################# compreface-postgres-db start ####################
@@ -64,7 +64,7 @@ RUN apt-get update \
     && apt-get install -y wget apt-transport-https gnupg \
     && wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | apt-key add - \
     && echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list \
-    && apt-get install -y temurin-17-jdk \
+    && apt-get update && apt-get install -y temurin-17-jdk \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=admin /home/app.jar /app/admin/app.jar
@@ -75,7 +75,7 @@ ENV APPERY_API_KEY ${APPERY_API_KEY}
 
 ################# compreface-api start ####################
 
-ENV API_JAVA_OPTS=-Xmx4g
+ENV API_JAVA_OPTS=-Xmx1g
 ENV SAVE_IMAGES_TO_DB=true
 ENV API_PORT=8080
 ENV CONNECTION_TIMEOUT=10000
