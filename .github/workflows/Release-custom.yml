@@ -2,17 +2,14 @@ name: (Release) Build and Push Custom builds
 
 on:
   workflow_dispatch:
-    inputs:
-      version:
-        description: Version (e.g., 1.0.0)
-        required: true
+
 
 
 env:
   REGISTRY: ghcr.io
   DOCKER_REGISTRY: ghcr.io/${{ github.actor }}/
 jobs:
-  build:
+  build-custom:
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Repo

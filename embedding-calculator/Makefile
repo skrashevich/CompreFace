@@ -40,26 +40,26 @@ endef
 default:
 	pytest src tools
 	python -m pylama --options pylama.ini src tools
-	docker build . -t $(IMAGE):$(VERSION)
+	docker buildx build -t $(IMAGE):$(VERSION) --push .
 
 build-cuda:
-	docker build . --file gpu.Dockerfile --tag $(CUDA_IMAGE)
+	docker buildx build --cache-to=type=gha,mode=max --cache-from=type=gha -f gpu.Dockerfile --tag $(CUDA_IMAGE) --push .
 
 build-images: build-cuda
-	docker build . -t $(IMAGE):$(VERSION)-facenet $(FACENET_BUILD_ARGS)
-	docker build . -t $(IMAGE):$(VERSION)-mobilenet $(MOBILENET_BUILD_ARGS)
-	docker build . -t $(IMAGE):$(VERSION)-mobilenet-gpu $(MOBILENET_BUILD_ARGS) $(GPU_ARGS)
-	docker build . -t $(IMAGE):$(VERSION)-arcface-r100 $(ARCFACE_r100_BUILD_ARGS)
-	docker build . -t $(IMAGE):$(VERSION)-arcface-r100-gpu $(ARCFACE_r100_BUILD_ARGS) $(GPU_ARGS)
+	docker buildx build --cache-to=type=gha,mode=max --cache-from=type=gha -t $(IMAGE):$(VERSION)-facenet $(FACENET_BUILD_ARGS) --push .
+	docker buildx build --cache-to=type=gha,mode=max --cache-from=type=gha -t $(IMAGE):$(VERSION)-mobilenet $(MOBILENET_BUILD_ARGS) --push .
+	docker buildx build --cache-to=type=gha,mode=max --cache-from=type=gha -t $(IMAGE):$(VERSION)-mobilenet-gpu $(MOBILENET_BUILD_ARGS) $(GPU_ARGS) --push .
+	docker buildx build --cache-to=type=gha,mode=max --cache-from=type=gha -t $(IMAGE):$(VERSION)-arcface-r100 $(ARCFACE_r100_BUILD_ARGS) --push .
+	docker buildx build --cache-to=type=gha,mode=max --cache-from=type=gha -t $(IMAGE):$(VERSION)-arcface-r100-gpu $(ARCFACE_r100_BUILD_ARGS) $(GPU_ARGS) --push .
 
 build-images-cpu:
-	docker build . -t $(IMAGE):$(VERSION)-facenet $(FACENET_BUILD_ARGS)
-	docker build . -t $(IMAGE):$(VERSION)-mobilenet $(MOBILENET_BUILD_ARGS)
-	docker build . -t $(IMAGE):$(VERSION)-arcface-r100 $(ARCFACE_r100_BUILD_ARGS)
+	docker buildx build --cache-to=type=gha,mode=maxscope=${{ matrix.service }} --cache-from=type=gha -t $(IMAGE):$(VERSION)-facenet $(FACENET_BUILD_ARGS) --push .
+	docker buildx build --cache-to=type=gha,mode=max --cache-from=type=gha -t $(IMAGE):$(VERSION)-mobilenet $(MOBILENET_BUILD_ARGS) --push .
+	docker buildx build --cache-to=type=gha,mode=max --cache-from=type=gha -t $(IMAGE):$(VERSION)-arcface-r100 $(ARCFACE_r100_BUILD_ARGS) --push .
 
 build-images-gpu: build-cuda
-	docker build . -t $(IMAGE):$(VERSION)-mobilenet-gpu $(MOBILENET_BUILD_ARGS) $(GPU_ARGS)
-	docker build . -t $(IMAGE):$(VERSION)-arcface-r100-gpu $(ARCFACE_r100_BUILD_ARGS) $(GPU_ARGS)
+	docker buildx build --cache-to=type=gha,mode=max --cache-from=type=gha -t $(IMAGE):$(VERSION)-mobilenet-gpu $(MOBILENET_BUILD_ARGS) $(GPU_ARGS) --push .
+	docker buildx build --cache-to=type=gha,mode=max --cache-from=type=gha -t $(IMAGE):$(VERSION)-arcface-r100-gpu $(ARCFACE_r100_BUILD_ARGS) $(GPU_ARGS) --push .
 
 up:
 	docker run -p3000:3000 embedding-calculator
