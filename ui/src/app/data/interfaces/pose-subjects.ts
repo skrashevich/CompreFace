@@ -13,9 +13,10 @@
  * or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-export interface DemoStatus {
-  demoFaceCollectionIsInconsistent: boolean;
-  saveImagesToDB: boolean;
-  dbIsInconsistent: boolean;
-  status: string;
+
+/* eslint-disable @typescript-eslint/naming-convention */
+export interface PoseSubject {
+    pitch: number;
+    roll: number;
+    yaw: number;
 }
